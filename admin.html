@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Activity Logs</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #00ff00;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            border-bottom: 2px solid #00ff00;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #1a1a1a;
+            border: 1px solid #00ff00;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: #1a1a1a;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #00ff00;
+            color: #0a0a0a;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .danger {
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+
+        .danger:hover {
+            background: #ff0000;
+            color: #fff;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            background: #1a1a1a;
+            border: 1px solid #00ff00;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background: #0a0a0a;
+            position: sticky;
+            top: 0;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+
+        th {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+
+        tbody tr:hover {
+            background: #0f0f0f;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border: 1px solid #00ff00;
+            font-size: 10px;
+            border-radius: 3px;
+        }
+
+        .badge.forgive {
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+
+        .badge.angry {
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        .badge.second-chance {
+            border-color: #ffd93d;
+            color: #ffd93d;
+        }
+
+        .badge.reject {
+            border-color: #ff4757;
+            color: #ff4757;
+        }
+
+        .badge.visit {
+            border-color: #6c5ce7;
+            color: #6c5ce7;
+        }
+
+        .delete-btn {
+            background: transparent;
+            color: #ff4757;
+            border: 1px solid #ff4757;
+            padding: 4px 8px;
+            font-size: 11px;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: all 0.3s;
+        }
+
+        .delete-btn:hover {
+            background: #ff4757;
+            color: #fff;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            opacity: 0.5;
+        }
+
+        .timestamp {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+            text-align: center;
+            font-size: 12px;
+            opacity: 0.5;
+        }
+
+        .blink {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50%, 100% { opacity: 1; }
+            25%, 75% { opacity: 0.5; }
+        }
+
+        .filter-bar {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        select, input {
+            background: #1a1a1a;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 8px 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff00;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ ADMIN DASHBOARD</h1>
+            <p>Activity Monitoring System</p>
+            <div class="live-indicator">
+                <div class="live-dot"></div>
+                <span>LIVE TRACKING</span>
+            </div>
+        </header>
+
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalVisits">0</div>
+                <div class="stat-label">Total Visits</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalForgive">0</div>
+                <div class="stat-label">Forgave</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalAngry">0</div>
+                <div class="stat-label">Still Angry</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalSecondChance">0</div>
+                <div class="stat-label">Second Chance</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button onclick="location.reload()">🔄 Reload Page</button>
+            <button onclick="exportLogs()">📥 Export CSV</button>
+            <button class="danger" onclick="clearAllLogs()">🗑️ Clear All Logs</button>
+        </div>
+
+        <div class="filter-bar">
+            <select id="filterAction" onchange="filterLogs()">
+                <option value="all">All Actions</option>
+                <option value="visit">Visit Only</option>
+                <option value="forgive">Forgave</option>
+                <option value="angry">Angry</option>
+                <option value="second-chance">Second Chance</option>
+                <option value="reject">Rejected</option>
+            </select>
+            
+            <input type="date" id="filterDate" onchange="filterLogs()" />
+            
+            <button onclick="resetFilters()">Clear Filters</button>
+        </div>
+
+        <div class="table-container">
+            <table id="logsTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Timestamp</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Action</th>
+                        <th>Device</th>
+                        <th>Browser</th>
+                        <th>Screen</th>
+                        <th>Location</th>
+                        <th>Language</th>
+                        <th>Referrer</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="logsBody">
+                    <!-- Logs will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            <p>Admin Dashboard v1.0 | Created for Nabila Project</p>
+            <p class="timestamp">Last Updated: <span id="lastUpdate">-</span></p>
+        </div>
+    </div>
+
+    <!-- Firebase Config -->
+    <script src="firebase-config.js"></script>
+    
+    <script>
+        // Firebase variables
+        let firebaseInitialized = false;
+        let database = null;
+        let logsListener = null;
+
+        // Initialize Firebase
+        function initFirebase() {
+            try {
+                if (window.firebaseConfig && typeof firebase !== 'undefined') {
+                    // Check if Firebase app already exists
+                    if (!firebase.apps.length) {
+                        firebase.initializeApp(window.firebaseConfig);
+                    }
+                    database = firebase.database();
+                    firebaseInitialized = true;
+                    console.log('🔥 Firebase initialized successfully');
+                    
+                    // Set up real-time listener
+                    setupRealtimeListener();
+                } else {
+                    throw new Error('Firebase or config not available');
+                }
+            } catch (error) {
+                console.warn('⚠️ Firebase initialization failed, using localStorage:', error);
+                firebaseInitialized = false;
+                // Load from localStorage as fallback
+                setTimeout(() => {
+                    loadLogs();
+                }, 500);
+            }
+        }
+
+        // Setup real-time listener for Firebase
+        function setupRealtimeListener() {
+            if (firebaseInitialized && database) {
+                const logsRef = database.ref('activityLogs');
+                
+                console.log('👂 Setting up real-time listener...');
+                
+                // Listen for new logs in real-time
+                logsListener = logsRef.on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    console.log('📡 Firebase data received:', data);
+                    
+                    if (data) {
+                        const logsArray = Object.keys(data).map(key => ({
+                            id: key,
+                            ...data[key]
+                        }));
+                        displayLogs(logsArray);
+                        updateStats(logsArray);
+                        updateLastUpdate();
+                        console.log('📊 Real-time update:', logsArray.length, 'logs');
+                    } else {
+                        console.log('⚠️ No data in Firebase yet');
+                        displayLogs([]);
+                        updateStats([]);
+                    }
+                }, (error) => {
+                    console.error('❌ Firebase listener error:', error);
+                    // Fallback to localStorage
+                    firebaseInitialized = false;
+                    loadLogs();
+                });
+                
+                console.log('✅ Real-time listener active');
+            }
+        }
+
+        // Load logs on page load
+        window.addEventListener('load', () => {
+            initFirebase();
+            
+            // If Firebase not available, use localStorage with auto-refresh
+            if (!firebaseInitialized) {
+                setTimeout(() => {
+                    if (!firebaseInitialized) {
+                        loadLogs();
+                        setInterval(() => loadLogs(), 30000);
+                    }
+                }, 1000);
+            }
+        });
+
+        function loadLogs() {
+            if (firebaseInitialized && database) {
+                // Firebase will load via real-time listener
+                console.log('Loading from Firebase...');
+            } else {
+                // Fallback to localStorage
+                const logs = JSON.parse(localStorage.getItem('activityLogs') || '[]');
+                displayLogs(logs);
+                updateStats(logs);
+                updateLastUpdate();
+            }
+        }
+
+        function displayLogs(logs) {
+            const tbody = document.getElementById('logsBody');
+            
+            if (logs.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="12" class="empty-state">
+                            <div>No activity logs yet</div>
+                            <div style="margin-top: 10px; font-size: 11px;">Logs will appear when users visit the main page</div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // Sort by timestamp descending (newest first)
+            logs.sort((a, b) => b.timestamp - a.timestamp);
+
+            tbody.innerHTML = logs.map((log, index) => {
+                const date = new Date(log.timestamp);
+                const dateStr = date.toLocaleDateString('id-ID');
+                const timeStr = date.toLocaleTimeString('id-ID');
+                const location = log.timezone ? log.timezone.split('/').pop().replace(/_/g, ' ') : '-';
+                const screen = log.screenResolution || '-';
+                const language = log.language || '-';
+                const referrer = log.referrer === 'Direct' || !log.referrer ? 'Direct' : 'External';
+                const logId = log.id || index; // Use index as fallback
+                
+                return `
+                    <tr>
+                        <td>${logs.length - index}</td>
+                        <td class="timestamp">${date.toLocaleString('id-ID')}</td>
+                        <td>${dateStr}</td>
+                        <td>${timeStr}</td>
+                        <td><span class="badge ${log.action}">${getActionLabel(log.action)}</span></td>
+                        <td>${log.device}</td>
+                        <td>${log.browser}</td>
+                        <td style="font-size: 10px;">${screen}</td>
+                        <td style="font-size: 10px;">${location}</td>
+                        <td style="font-size: 10px;">${language}</td>
+                        <td style="font-size: 10px;">${referrer}</td>
+                        <td><button class="delete-btn" onclick="deleteLog('${logId}', ${index})">🗑️</button></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function getActionLabel(action) {
+            const labels = {
+                'visit': '👁️ Visit',
+                'forgive': '❤️ Maafin',
+                'angry': '😠 Kesel',
+                'second-chance': '💕 Second Chance',
+                'reject': '❌ Reject'
+            };
+            return labels[action] || action;
+        }
+
+        function updateStats(logs) {
+            document.getElementById('totalVisits').textContent = logs.filter(l => l.action === 'visit').length;
+            document.getElementById('totalForgive').textContent = logs.filter(l => l.action === 'forgive').length;
+            document.getElementById('totalAngry').textContent = logs.filter(l => l.action === 'angry').length;
+            document.getElementById('totalSecondChance').textContent = logs.filter(l => l.action === 'second-chance').length;
+        }
+
+        function updateLastUpdate() {
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString('id-ID');
+        }
+
+        function refreshLogs() {
+            // Not used anymore, data is real-time
+            // Kept for backward compatibility
+            console.log('Real-time sync active, no manual refresh needed');
+        }
+
+        function deleteLog(logId, index) {
+            if (confirm('Delete this log entry?')) {
+                if (firebaseInitialized && database) {
+                    // Delete from Firebase
+                    if (logId && typeof logId === 'string' && logId !== 'undefined') {
+                        database.ref('activityLogs/' + logId).remove()
+                            .then(() => {
+                                showNotification('Log deleted');
+                                console.log('🗑️ Log deleted:', logId);
+                            })
+                            .catch((error) => {
+                                console.error('Error deleting log:', error);
+                                alert('Error deleting log: ' + error.message);
+                            });
+                    } else {
+                        alert('Cannot delete: Invalid log ID');
+                    }
+                } else {
+                    // Delete from localStorage
+                    let logs = JSON.parse(localStorage.getItem('activityLogs') || '[]');
+                    logs.splice(index, 1);
+                    localStorage.setItem('activityLogs', JSON.stringify(logs));
+                    loadLogs();
+                    showNotification('Log deleted');
+                }
+            }
+        }
+
+        function clearAllLogs() {
+            if (confirm('Are you sure you want to delete ALL logs? This action cannot be undone!')) {
+                if (firebaseInitialized && database) {
+                    // Clear from Firebase
+                    database.ref('activityLogs').remove()
+                        .then(() => {
+                            showNotification('All logs cleared from Firebase');
+                            console.log('🗑️ Firebase logs cleared');
+                        })
+                        .catch((error) => {
+                            console.error('Error clearing Firebase logs:', error);
+                            alert('Error clearing logs: ' + error.message);
+                        });
+                } else {
+                    // Clear from localStorage
+                    localStorage.removeItem('activityLogs');
+                    loadLogs();
+                    showNotification('All logs cleared from localStorage');
+                }
+            }
+        }
+
+        function exportLogs() {
+            let logs = [];
+            
+            if (firebaseInitialized && database) {
+                // Get from Firebase
+                database.ref('activityLogs').once('value')
+                    .then((snapshot) => {
+                        const data = snapshot.val();
+                        if (data) {
+                            logs = Object.keys(data).map(key => data[key]);
+                            exportToCSV(logs);
+                        } else {
+                            alert('No logs to export');
+                        }
+                    });
+            } else {
+                // Get from localStorage
+                logs = JSON.parse(localStorage.getItem('activityLogs') || '[]');
+                if (logs.length === 0) {
+                    alert('No logs to export');
+                    return;
+                }
+                exportToCSV(logs);
+            }
+        }
+
+        function exportToCSV(logs) {
+            // Create CSV content
+            let csv = 'Timestamp,Date,Time,Action,Device,Browser,Screen,Location,Language,Referrer,Session ID,User Agent,URL\n';
+            
+            logs.forEach(log => {
+                const date = new Date(log.timestamp);
+                const location = log.timezone || '-';
+                const screen = log.screenResolution || '-';
+                const language = log.language || '-';
+                const referrer = log.referrer || 'Direct';
+                const url = log.url || '-';
+                csv += `"${date.toLocaleString('id-ID')}","${date.toLocaleDateString('id-ID')}","${date.toLocaleTimeString('id-ID')}","${log.action}","${log.device}","${log.browser}","${screen}","${location}","${language}","${referrer}","${log.sessionId}","${log.userAgent || '-'}","${url}"\n`;
+            });
+
+            // Download CSV
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `activity-logs-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            showNotification('Logs exported');
+        }
+
+        function filterLogs() {
+            const actionFilter = document.getElementById('filterAction').value;
+            const dateFilter = document.getElementById('filterDate').value;
+            
+            if (firebaseInitialized && database) {
+                // Filter Firebase data
+                database.ref('activityLogs').once('value')
+                    .then((snapshot) => {
+                        const data = snapshot.val();
+                        if (data) {
+                            let logs = Object.keys(data).map(key => data[key]);
+                            logs = applyFilters(logs, actionFilter, dateFilter);
+                            displayLogs(logs);
+                        }
+                    });
+            } else {
+                // Filter localStorage data
+                let logs = JSON.parse(localStorage.getItem('activityLogs') || '[]');
+                logs = applyFilters(logs, actionFilter, dateFilter);
+                displayLogs(logs);
+            }
+        }
+
+        function applyFilters(logs, actionFilter, dateFilter) {
+            // Filter by action
+            if (actionFilter !== 'all') {
+                logs = logs.filter(log => log.action === actionFilter);
+            }
+            
+            // Filter by date
+            if (dateFilter) {
+                const filterDate = new Date(dateFilter).toLocaleDateString('id-ID');
+                logs = logs.filter(log => {
+                    const logDate = new Date(log.timestamp).toLocaleDateString('id-ID');
+                    return logDate === filterDate;
+                });
+            }
+            
+            return logs;
+        }
+
+        function resetFilters() {
+            document.getElementById('filterAction').value = 'all';
+            document.getElementById('filterDate').value = '';
+            loadLogs();
+        }
+
+        function showNotification(message) {
+            // Simple notification (you can enhance this)
+            const originalTitle = document.title;
+            document.title = `✓ ${message}`;
+            setTimeout(() => {
+                document.title = originalTitle;
+            }, 2000);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 'r' || e.key === 'R') {
+                    e.preventDefault();
+                    location.reload();
+                }
+                if (e.key === 'e' || e.key === 'E') {
+                    e.preventDefault();
+                    exportLogs();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

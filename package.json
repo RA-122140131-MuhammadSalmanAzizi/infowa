@@ -1,0 +1,17 @@
+{
+  "name": "sorry",
+  "version": "1.0.0",
+  "description": "WhatsApp chat simulator real-time activity tracking",
+  "scripts": {
+    "start": "python -m http.server 3000",
+    "dev": "python -m http.server 3000"
+  },
+  "keywords": [
+    "whatsapp",
+    "chat",
+    "apology",
+    "firebase"
+  ],
+  "author": "Salman",
+  "license": "MIT"
+}

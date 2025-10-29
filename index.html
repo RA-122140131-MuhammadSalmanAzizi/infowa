@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat dengan Salman 💬</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Notes Paper (appears when user forgives) -->
+    <div class="notes-paper hidden" id="notes-paper">
+        <button class="notes-close" onclick="toggleNotes()">✕</button>
+        <div class="notes-header">📝 Note</div>
+        <div class="notes-content">
+            <p>Karena kamu milih maafin aku...</p>
+            <p class="notes-highlight">Tolong segera chat aku ya sayang! 💕</p>
+            <p class="notes-footer">- Salman yang kangen banget 🥺</p>
+        </div>
+    </div>
+
+    <!-- Phone mockup -->
+    <div class="phone-container">
+        <!-- Status bar -->
+        <div class="status-bar">
+            <span class="time" id="current-time">21:47</span>
+            <div class="status-icons">
+                <span>📶</span>
+                <span>📡</span>
+                <span>🔋</span>
+            </div>
+        </div>
+
+        <!-- Chat header -->
+        <div class="chat-header">
+            <div class="back-btn">←</div>
+            <div class="profile-info">
+                <div class="profile-pic">
+                    <div class="avatar">S</div>
+                    <div class="online-dot"></div>
+                </div>
+                <div class="header-text">
+                    <div class="contact-name">Salman</div>
+                    <div class="status">mengetik...</div>
+                </div>
+            </div>
+            <div class="header-icons">
+                <span><img src="image/ikontelp.png" alt="📞" style="width: 20px; height: 20px;"></span>
+                <span>⋮</span>
+            </div>
+        </div>
+
+        <!-- Chat wallpaper -->
+        <div class="chat-background"></div>
+
+        <!-- Chat messages -->
+        <div class="chat-container" id="chat-container">
+            <!-- Messages akan muncul di sini -->
+        </div>
+
+        <!-- Input area -->
+        <div class="input-container">
+            <div class="input-wrapper">
+                <span class="emoji-btn"><img src="image/ikonemoji.png" alt="😊"></span>
+                <input type="text" id="user-input" placeholder="Ketik sesuatu..." disabled>
+                <span class="attach-btn">📎</span>
+            </div>
+            <button class="send-btn" id="send-btn" disabled>
+                <span><img src="image/ikonmic.png" alt="🎤"></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Easter egg overlay -->
+    <div class="memory-overlay hidden" id="memory-overlay">
+        <div class="memory-content">
+            <button class="close-btn" onclick="closeMemory()">✕</button>
+            <h2>Kenangan Kita 📸</h2>
+            <div class="polaroid-container">
+                <div class="polaroid">
+                    <div class="polaroid-img">
+                        <img src="image/foto1.jpg" alt="Kenangan 1">
+                    </div>
+                    <div class="polaroid-caption">Pertama kali ketemu</div>
+                </div>
+                <div class="polaroid">
+                    <div class="polaroid-img">
+                        <img src="image/foto2.jpg" alt="Kenangan 2">
+                    </div>
+                    <div class="polaroid-caption">KKN bareng si cantik</div>
+                </div>
+                <div class="polaroid">
+                    <div class="polaroid-img">
+                        <img src="image/foto3.jpg" alt="Kenangan 3">
+                    </div>
+                    <div class="polaroid-caption">Tempat Makan Fav</div>
+                </div>
+                <div class="polaroid">
+                    <div class="polaroid-img">
+                        <img src="image/foto4.jpg" alt="Kenangan 4">
+                    </div>
+                    <div class="polaroid-caption">Sekarang & Selamanya</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+    
+    <!-- Firebase Config -->
+    <script src="firebase-config.js"></script>
+    
+    <!-- Main Script -->
+    <script src="script.js"></script>
+</body>
+</html>
