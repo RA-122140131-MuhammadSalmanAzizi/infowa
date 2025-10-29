@@ -86,7 +86,10 @@ function getBrowserInfo() {
     let browser = 'Unknown';
     
     // Urutan penting: cek yang paling spesifik dulu
-    if (ua.includes('Edg')) browser = 'Edge'; // Edge menggunakan 'Edg' bukan 'Edge'
+    // Chrome iOS menggunakan 'CriOS', Firefox iOS menggunakan 'FxiOS'
+    if (ua.includes('CriOS')) browser = 'Chrome Mobile (iOS)';
+    else if (ua.includes('FxiOS')) browser = 'Firefox Mobile (iOS)';
+    else if (ua.includes('Edg')) browser = 'Edge'; // Edge menggunakan 'Edg' bukan 'Edge'
     else if (ua.includes('OPR') || ua.includes('Opera')) browser = 'Opera';
     else if (ua.includes('Chrome')) browser = 'Chrome';
     else if (ua.includes('Safari')) browser = 'Safari'; // Safari di cek terakhir karena Chrome juga ada kata Safari

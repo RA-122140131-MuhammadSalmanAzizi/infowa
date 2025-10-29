@@ -235,7 +235,7 @@ body {
     max-width: 400px;
     height: 90vh;
     max-height: 800px;
-    background: #000;
+    background: #075e54; /* Hijau WhatsApp seperti header */
     border-radius: 40px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 
                 0 0 0 12px #1a1a1a,
@@ -415,7 +415,7 @@ body {
 
 @media (max-width: 414px) {
     .chat-container {
-        bottom: calc(140px + env(safe-area-inset-bottom)); /* 80px (input position) + 60px (input height) */
+        bottom: calc(150px + env(safe-area-inset-bottom)); /* 90px (input position) + 60px (input height) */
         padding-bottom: 20px;
     }
 }
@@ -647,7 +647,7 @@ body {
 /* Mobile Safari - Naikkan input container lebih tinggi */
 @media (max-width: 414px) {
     .input-container {
-        bottom: 80px; /* Naikkan 80px dari bawah */
+        bottom: 90px; /* Naikkan 90px dari bawah */
         padding-bottom: max(12px, env(safe-area-inset-bottom));
         box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
     }
@@ -874,7 +874,7 @@ body {
     }
     
     .input-container {
-        bottom: 80px; /* Sama seperti di media query 414px */
+        bottom: 90px; /* Sama seperti di media query 414px */
         padding-bottom: max(12px, env(safe-area-inset-bottom, 20px));
     }
 }
