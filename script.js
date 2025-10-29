@@ -85,11 +85,13 @@ function getBrowserInfo() {
     const ua = navigator.userAgent;
     let browser = 'Unknown';
     
-    if (ua.includes('Firefox')) browser = 'Firefox';
+    // Urutan penting: cek yang paling spesifik dulu
+    if (ua.includes('Edg')) browser = 'Edge'; // Edge menggunakan 'Edg' bukan 'Edge'
+    else if (ua.includes('OPR') || ua.includes('Opera')) browser = 'Opera';
     else if (ua.includes('Chrome')) browser = 'Chrome';
-    else if (ua.includes('Safari')) browser = 'Safari';
-    else if (ua.includes('Edge')) browser = 'Edge';
-    else if (ua.includes('Opera')) browser = 'Opera';
+    else if (ua.includes('Safari')) browser = 'Safari'; // Safari di cek terakhir karena Chrome juga ada kata Safari
+    else if (ua.includes('Firefox')) browser = 'Firefox';
+    else if (ua.includes('MSIE') || ua.includes('Trident')) browser = 'Internet Explorer';
     
     return browser;
 }
