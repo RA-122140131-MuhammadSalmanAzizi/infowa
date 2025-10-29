@@ -2,8 +2,8 @@
 node_modules/
 package-lock.json
 
-# Firebase (IMPORTANT: Jangan commit config asli ke public repo!)
-firebase-config.js
+# Firebase config is now included in repo for deployment
+# (Safe for client-side Firebase with proper database rules)
 
 # Vercel
 .vercel/

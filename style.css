@@ -413,6 +413,13 @@ body {
     background: transparent;
 }
 
+@media (max-width: 414px) {
+    .chat-container {
+        bottom: calc(60px + env(safe-area-inset-bottom));
+        padding-bottom: 80px;
+    }
+}
+
 .chat-container::-webkit-scrollbar {
     width: 6px;
 }
@@ -637,6 +644,12 @@ body {
     z-index: 100;
 }
 
+@media (max-width: 414px) {
+    .input-container {
+        padding-bottom: max(8px, env(safe-area-inset-bottom));
+    }
+}
+
 .input-wrapper {
     flex: 1;
     background: white;
@@ -854,7 +867,11 @@ body {
     }
     
     .chat-container {
-        padding-bottom: 70px;
+        padding-bottom: 90px;
+    }
+    
+    .input-container {
+        padding-bottom: max(8px, env(safe-area-inset-bottom, 20px));
     }
 }
 
